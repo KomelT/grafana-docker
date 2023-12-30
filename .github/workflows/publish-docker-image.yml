@@ -32,3 +32,4 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: komelt/grafana:latest
+          no-cache: true
