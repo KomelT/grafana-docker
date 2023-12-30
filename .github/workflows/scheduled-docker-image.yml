@@ -19,21 +19,23 @@ jobs:
           echo "Fetching tags..."
           TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name")
           echo $TAGS
-          echo "::set-output name=tags::$TAGS"
+          echo "name=${TAGS}" >> $GITHUB_OUTPUT 
 
       - name: Create JSON matrix
         id: set-matrix
         run: |
           # Convert newline-separated tags into a JSON array
           JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split("\n")[:-1]')
-          echo "::set-output name=matrix::{\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}"
+          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
 
   build:
     needs: process-tags
     runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.process-tags.outputs.matrix)}}
     steps:
     - name: Process Tag
       run: |
-        echo "Processing tag ${{ needs.process-tags.outputs.matrix }}"
+        echo "Processing tag ${{ matrix.tag }}"
         # Replace the echo command with your processing steps
         
