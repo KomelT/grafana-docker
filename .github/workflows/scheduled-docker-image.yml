@@ -32,10 +32,10 @@ jobs:
     needs: process-tags
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.set-matrix.outputs.matrix)}}
+      matrix: ${{needs.process-tags.outputs.matrix}}
     steps:
     - name: Process Tag
       run: |
-        echo "Processing tag ${{ matrix.tag }}"
+        echo "Processing tag ${{ matrix }}"
         # Replace the echo command with your processing steps
         
