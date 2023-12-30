@@ -1,5 +1,5 @@
-[![GitHub](https://img.shields.io/badge/GitHub-grafana-blue?logo=github)](https://hub.docker.com/r/komelt/grafana)
-[![DockerHub](https://img.shields.io/badge/Docker-komelt/grafana-blue?logo=docker)](https://github.com/KomelT/grafana-docker)
+[![GitHub](https://img.shields.io/badge/GitHub-grafana-blue?logo=github)](https://github.com/KomelT/grafana-docker)
+[![DockerHub](https://img.shields.io/badge/Docker-komelt/grafana-blue?logo=docker)](https://hub.docker.com/r/komelt/grafana)
 # Grafana
 I was missing option to pass datasources info trough env variables.
 
