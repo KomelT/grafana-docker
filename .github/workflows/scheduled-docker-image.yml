@@ -26,8 +26,9 @@ jobs:
         env:
           TAGS: ${{ steps.fetch-tags.outputs.TAGS }}
         run: |
-          # Convert newline-separated tags into a JSON array
-          echo $TAGS
+          # Convert comma-separated tags into a JSON array
+          JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split(",")[:-1]')
+          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
 
   build:
     needs: process-tags
