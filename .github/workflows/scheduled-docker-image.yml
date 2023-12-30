@@ -17,7 +17,7 @@ jobs:
         id: fetch-tags
         run: |
           echo "Fetching tags..."
-          TAGS_ENCODED=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name" | paste -sd "," -)
+          TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name" | paste -sd "," -)
           echo $TAGS
           echo "tags=$TAGS" >> $GITHUB_STATE 
 
