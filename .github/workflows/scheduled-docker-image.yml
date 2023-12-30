@@ -19,10 +19,12 @@ jobs:
           echo "Fetching tags..."
           TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name" | paste -sd "," -)
           echo $TAGS
-          echo "tags=$TAGS" >> $GITHUB_STATE 
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT 
 
       - name: Create JSON matrix
         id: set-matrix
+        env:
+          TAGS: ${{ steps.fetch-tags.outputs.TAGS }}
         run: |
           # Convert newline-separated tags into a JSON array
           echo $TAGS
