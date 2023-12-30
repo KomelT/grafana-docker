@@ -34,6 +34,6 @@ jobs:
     steps:
     - name: Process Tag
       run: |
-        echo "Processing tag ${{ needs.set-matrix.outputs.matrix }}"
+        echo "Processing tag ${{ needs.process-tags.outputs.matrix }}"
         # Replace the echo command with your processing steps
         
