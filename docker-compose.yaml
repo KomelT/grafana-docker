@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+
+  grafana:
+    build:
+      dockerfile: Dockerfile
+    container_name: grafana
+    ports:
+      - 3000:3000
+    environment:
+      GF_INFLUXDB_URL: "http://influxdb:8086"
+      GF_INFLUXDB_TOKEN: "th1515ntr3alt0k3n=="
+      GF_INFLUXDB_ORG: "testorg"
+      GF_INFLUXDB_BUCKET: "testbucket"
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: testuser
+      DOCKER_INFLUXDB_INIT_PASSWORD: testpassword
+      DOCKER_INFLUXDB_INIT_ORG: testorg
+      DOCKER_INFLUXDB_INIT_BUCKET: testbucket
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: "th1515ntr3alt0k3n=="
