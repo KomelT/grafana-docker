@@ -31,11 +31,9 @@ jobs:
   build:
     needs: process-tags
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{needs.set-matrix.outputs.matrix}}
     steps:
     - name: Process Tag
       run: |
-        echo "Processing tag ${{ matrix }}"
+        echo "Processing tag ${{ needs.set-matrix.outputs.matrix }}"
         # Replace the echo command with your processing steps
         
