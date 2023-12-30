@@ -1,10 +1,36 @@
+[![GitHub](https://img.shields.io/badge/GitHub-grafana-blue?logo=github)](https://hub.docker.com/r/komelt/grafana)
+[![DockerHub](https://img.shields.io/badge/Docker-komelt/grafana-blue?logo=docker)](https://github.com/KomelT/grafana-docker)
 # Grafana
-
-## Why?
 I was missing option to pass datasources info trough env variables.
 
-## Usage
-```bash
+I added new file to [grafana/grafana:latest](https://hub.docker.com/r/grafana/grafana) which adds new datasource based on data passed trough envs.
+```yaml
+# /etc/grafana/provisioning/datasources/automatic.yaml
+apiVersion: 1
+
+deleteDatasources:
+  - name: InfluxDB
+    orgId: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    orgId: 1
+    url: ${GF_INFLUXDB_URL}
+    secureJsonData:
+      token: ${GF_INFLUXDB_TOKEN}
+    editable: false
+    isDefault: ${GF_INFLUXDB_IS_DEFAULT}
+    jsonData:
+      version: Flux
+      organization: ${GF_INFLUXDB_ORG}
+      defaultBucket: ${GF_INFLUXDB_BUCKET}
+      tlsSkipVerify: ${GF_INFLUXDB_TLS_SKIP_VERIFY}
+```
+
+## Usage Example
+```yaml
 version: "3.9"
 services:
 
