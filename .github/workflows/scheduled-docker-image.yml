@@ -32,7 +32,7 @@ jobs:
     needs: process-tags
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.process-tags.outputs.matrix)}}
+      matrix: ${{fromJson(needs.set-matrix.outputs.matrix)}}
     steps:
     - name: Process Tag
       run: |
