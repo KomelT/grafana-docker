@@ -1,17 +1,22 @@
 # Build and push Docker images: https://github.com/marketplace/actions/build-and-push-docker-images
 
-name: Scheduled build Docker image
+name: Test Docker image
 
 on:
   workflow_call:
+    inputs:
+      TAG:
+        type: string
+        required: true
 
 jobs:
-  test:
+  test_image_tag:
     name: Test Docker Image
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
+
+      - name: Log tag
+        run: echo $TAG
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
@@ -19,5 +24,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
+          tags: "komelt/grafana:${{ inputs.TAG }}"
           no-cache: true
     

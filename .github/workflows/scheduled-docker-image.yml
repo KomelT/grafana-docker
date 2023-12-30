@@ -8,13 +8,13 @@ on:
     - cron: '0 12 * * *'
 
 jobs:
-  process-tags:
+  process_image_tags:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
     steps:
-      - name: Fetch tags
-        id: fetch-tags
+      - name: Fetch image tags
+        id: fetch_tags
         run: |
           echo "Fetching tags..."
           TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name" | paste -sd "," -)
@@ -22,22 +22,19 @@ jobs:
           echo "tags=$TAGS" >> $GITHUB_OUTPUT 
 
       - name: Create JSON matrix
-        id: set-matrix
+        id: set_matrix
         env:
-          TAGS: ${{ steps.fetch-tags.outputs.TAGS }}
+          TAGS: ${{ steps.fetch_tags.outputs.TAGS }}
         run: |
           # Convert comma-separated tags into a JSON array
           JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split(",")[:-1]')
           echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
 
-  build:
-    needs: process-tags
-    runs-on: ubuntu-latest
+  test_images:
+    needs: process_image_tags
     strategy:
-      matrix: ${{fromJson(needs.process-tags.outputs.matrix)}}
-    steps:
-    - name: Process Tag
-      run: |
-        echo "Processing tag ${{ matrix.tag }}"
-        # Replace the echo command with your processing steps
+      matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
+    with:
+      TAG: $TAG
+    uses: ./.github/workflows/test-docker-image.yml
         
