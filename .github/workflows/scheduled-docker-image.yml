@@ -17,7 +17,7 @@ jobs:
         id: fetch-tags
         run: |
           echo "Fetching tags..."
-          TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r '.results.[].name')
+          TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results.[].name")
           echo $TAGS
           echo "::set-output name=tags::$TAGS"
 
