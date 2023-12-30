@@ -5,6 +5,11 @@ name: Build & Publish Docker image
 
 on:
   workflow_call:
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_PASSWORD:
+        required: true
 
 jobs:
   push_to_registry:
