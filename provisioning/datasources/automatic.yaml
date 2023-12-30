@@ -4,18 +4,21 @@
 apiVersion: 1
 
 deleteDatasources:
-  - name: MYINFLUX
+  - name: InfluxDB
     orgId: 1
 
 datasources:
   - name: InfluxDB
     type: influxdb
     access: proxy
+    orgId: 1
     url: ${GF_INFLUXDB_URL}
     secureJsonData:
       token: ${GF_INFLUXDB_TOKEN}
+    editable: false
+    isDefault: ${GF_INFLUXDB_IS_DEFAULT}
     jsonData:
       version: Flux
       organization: ${GF_INFLUXDB_ORG}
       defaultBucket: ${GF_INFLUXDB_BUCKET}
-      tlsSkipVerify: true
+      tlsSkipVerify: ${GF_INFLUXDB_TLS_SKIP_VERIFY}
