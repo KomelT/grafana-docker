@@ -3,15 +3,13 @@ name: Scheduled Docker image
 on:
   push:
     branches:
-      - main
+      - "*"
   schedule:
     - cron: '0 12 * * *'
 
 jobs:
-  test_docker_image:
-    uses: ./.github/workflows/test-docker-image.yml
-
-  publish_docker_image:
-    needs: test_docker_image
-    uses: ./.github/workflows/publish-docker-image.yml
-    secrets: inherit
+  get-all-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Test Docker command"
+        run: docker ps
