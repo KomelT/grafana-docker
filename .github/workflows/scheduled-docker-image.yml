@@ -19,7 +19,7 @@ jobs:
           echo "Fetching tags..."
           TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name")
           echo $TAGS
-          echo "name=${TAGS}" >> $GITHUB_OUTPUT 
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT 
 
       - name: Create JSON matrix
         id: set-matrix
