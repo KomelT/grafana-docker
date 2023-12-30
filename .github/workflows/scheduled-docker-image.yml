@@ -8,8 +8,34 @@ on:
     - cron: '0 12 * * *'
 
 jobs:
-  get-all-images:
+  process-tags:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: "Test Docker command"
-        run: docker ps
+      - name: Fetch tags
+        id: fetch-tags
+        run: |
+          echo "Fetching tags..."
+          TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r '.results.[].name')
+          echo $TAGS
+          echo "::set-output name=tags::$TAGS"
+
+      - name: Create JSON matrix
+        id: set-matrix
+        run: |
+          # Convert newline-separated tags into a JSON array
+          JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split("\n")[:-1]')
+          echo "::set-output name=matrix::{\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}"
+
+  build:
+    needs: process-tags
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.process-tags.outputs.matrix)}}
+    steps:
+    - name: Process Tag
+      run: |
+        echo "Processing tag ${{ matrix.tag }}"
+        # Replace the echo command with your processing steps
+        
