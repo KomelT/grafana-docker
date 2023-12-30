@@ -17,9 +17,9 @@ jobs:
         id: fetch-tags
         run: |
           echo "Fetching tags..."
-          TAGS_ENCODED=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name")
-          echo $TAGS_ENCODED
-          echo "tags=$TAGS_ENCODED" >> $GITHUB_ENV 
+          TAGS_ENCODED=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name" | paste -sd "," -)
+          echo $TAGS
+          echo "tags=$TAGS" >> $GITHUB_STATE 
 
       - name: Create JSON matrix
         id: set-matrix
