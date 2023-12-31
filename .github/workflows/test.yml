@@ -46,8 +46,20 @@ jobs:
             exit 1  # Exit with a non-zero code to fail the job
           fi
 
-      - name: Output as sucessfull
-        id: tag_output
+      - name: Output sucessfull
+        id: tag_succ_output
         if: ${{ success() }}
-        run: echo "successful-tag=${{ inputs.TAG }}" >> $GITHUB_OUTPUT
+        run: echo "success" > result.txt
+
+      - name: Output failed
+        id: tag_fail_output
+        if: ${{ failure() }}
+        run: echo "failure" > result.txt
+
+      - name: Upload result as artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: result-${{ inputs.TAG }}
+          path: result.txt
     

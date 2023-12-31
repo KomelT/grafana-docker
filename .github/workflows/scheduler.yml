@@ -45,9 +45,24 @@ jobs:
     name: Push
     needs: ["test_tag", "process_image_tags"]
     runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
     steps:
-      - name: Log test output
-        run: echo "${{ needs.test_tag.outputs.successful-tag }}"
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Process each tag
+        run: |
+          mkdir results
+          mv */*.txt results/  # Move all result files into a single directory for processing
+          for file in results/*.txt; do
+            TAG=${file#result-}  # Extract tag name from file name
+            TAG=${TAG%.txt}  # Remove .txt extension
+            RESULT=$(cat "$file")
+            if [[ "$RESULT" == "success" ]]; then
+              echo "Tag $TAG was successful. Proceeding to push."
+              # Here you put your logic to push the tag, e.g.,
+              # docker push "yourimage:$TAG"
+            else
+              echo "Tag $TAG failed tests. Skipping."
+            fi
+          done
         
