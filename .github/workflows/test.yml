@@ -8,17 +8,11 @@ on:
       TAG:
         type: string
         required: true
-    outputs:
-      successful-tag:
-        description: "Sucessfully passed tag"
-        value: ${{ jobs.build_test.outputs.successful-tag }}
 
 jobs:
   build_test:
     name: Build Test
     runs-on: ubuntu-latest
-    outputs:
-      successful-tag: ${{ steps.tag_output.outputs.successful-tag }}
     steps:
 
       - name: Checkout
