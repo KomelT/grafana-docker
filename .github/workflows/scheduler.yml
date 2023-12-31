@@ -9,6 +9,7 @@ on:
 
 jobs:
   process_image_tags:
+    name: Process image tags
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set_matrix.outputs.matrix }}
@@ -30,7 +31,8 @@ jobs:
           JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split(",")[:-1]')
           echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
 
-  test_image:
+  test_tag:
+    name: Test tag ${{ matrix.tag }}
     needs: process_image_tags
     strategy:
       matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
