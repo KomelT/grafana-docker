@@ -8,6 +8,10 @@ on:
       TAG:
         type: string
         required: true
+    outputs:
+      successful-tag:
+        description: "Sucessfully passed tag"
+        value: ${{ jobs.build_test.outputs.successful-tag }}
 
 jobs:
   build_test:
@@ -38,5 +42,5 @@ jobs:
       - name: Output as sucessfull
         id: tag_output
         if: ${{ success() }}
-        run: echo "tag=${{ inputs.TAG }}" >> $GITHUB_OUTPUT
+        run: echo "successful-tag=${{ inputs.TAG }}" >> $GITHUB_OUTPUT
     
