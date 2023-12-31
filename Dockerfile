@@ -1,4 +1,4 @@
-ARG SENTRY_AUTH_TOKEN
+ARG IMAGE_TAG
 
 FROM grafana/grafana:${IMAGE_TAG}
 
