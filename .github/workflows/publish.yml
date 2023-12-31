@@ -30,6 +30,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: Build & Publish Docker image
+        if: ${{ inputs.TAG != '' }}
         uses: docker/build-push-action@v5
         with:
           context: .
