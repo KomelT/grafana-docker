@@ -19,7 +19,7 @@ jobs:
         run: |
           echo "Fetching tags..."
           TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name" | paste -sd "," -)
-          $TAGS="$latest,${TAGS}"
+          TAGS="latest,${TAGS}"
           echo $TAGS
           echo "tags=$TAGS" >> $GITHUB_OUTPUT 
 
