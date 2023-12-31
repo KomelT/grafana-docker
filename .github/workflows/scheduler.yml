@@ -46,7 +46,7 @@ jobs:
     name: Agregate Tags
     needs: test_tag
     outputs:
-      matrix: ${{ steps.collect_success.outputs.successful-tags}}
+      matrix: ${{ steps.collect_success.outputs.matrix}}
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -76,9 +76,9 @@ jobs:
           done
 
           # Convert the array of successful tags to a JSON string and set as output
-          SUCCESSFUL_TAGS_JSON=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
-          echo $SUCCESSFUL_TAGS_JSON
-          echo "successful-tags=$SUCCESSFUL_TAGS_JSON" >> $GITHUB_OUTPUT
+          JSON_ARRAY=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
+          echo $JSON_ARRAY
+          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
 
   publish_tags:
     name: Publish (${{ matrix.tag }})
