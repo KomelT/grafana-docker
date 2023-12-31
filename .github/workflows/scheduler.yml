@@ -42,8 +42,10 @@ jobs:
 
   push_tag:
     name: Push
-    needs: test_tag
+    needs: ["test_tag", "process_image_tags"]
     runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
     steps:
       - name: Log test output
         run: echo "${{ needs.test_tag.outputs.successful-tag }}"
