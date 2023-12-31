@@ -51,7 +51,7 @@ jobs:
     needs: test_tags
     outputs:
       matrix: ${{ steps.collect_success.outputs.matrix}}
-    if: always()
+    if: always() 
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
@@ -91,7 +91,7 @@ jobs:
   publish_tags:
     name: Publish (${{ matrix.tag }})
     needs: agregate_tags
-    if: always()
+    if: ${{ always() && needs.agregate_tags.outputs.matrix != '[""]' }}
     secrets: inherit
     strategy:
       fail-fast: false
