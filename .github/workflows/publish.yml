@@ -36,5 +36,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: "komelt/grafana:${{ inputs.TAG }}"
-          secret-envs: IMAGE_TAG="${{ inputs.TAG }}"
+          secret-envs: IMAGE_TAG=${{ inputs.TAG }}
           no-cache: true
