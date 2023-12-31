@@ -21,7 +21,7 @@ jobs:
           TAGS=""
           for ((i=1; i <= 2; i++)); do
             TAGS_TMP=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.results[].name' | paste -sd "," -)
-            TAGS="${TAGS},${TAG_TMP}"
+            TAGS="${TAGS},${TAGS_TMP}"
           done
           TAGS="${TAGS:1}"
           echo "Fected comma-separated tags: ${TAGS}"
