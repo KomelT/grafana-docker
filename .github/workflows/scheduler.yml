@@ -80,6 +80,7 @@ jobs:
 
   push_tags:
     needs: agregate_tags
+    if: always()
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
