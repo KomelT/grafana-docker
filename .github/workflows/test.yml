@@ -10,9 +10,11 @@ on:
         required: true
 
 jobs:
-  build_test:
-    name: Build Test
+  test:
+    name: Test
     runs-on: ubuntu-latest
+    env:
+      skip:
     steps:
 
       - name: Checkout
@@ -25,6 +27,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build 'komelt/grafana:${{ inputs.TAG }}'
+        id: build-image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -35,18 +38,40 @@ jobs:
             "IMAGE_TAG=${{ inputs.TAG }}"
           no-cache: true
 
+      - name: Check if this image digest exists
+        run: |
+          TAG="${{ inputs.TAG }}"
+          DIGEST=""
+          for ((i=1; i <= 2; i++)); do
+              response=$(curl -s "https://registry.hub.docker.com/v2/repositories/komelt/grafana/tags/?page=$i")
+              DIGEST_TMP=$(echo $response | jq -r --arg TAG "$TAG" '.results[] | select(.name == $TAG) | .digest')
+              
+              if [[ "$DIGEST_TMP" != ""]]; then
+                  DIGEST=$DIGEST_TMP
+                  break
+              fi
+          done
+          
+          echo "Digest found: $DIGEST"
+          echo "Digest from build: ${{ steps.build-image.outputs.digest }}"
+
+          if [[ "$DIGEST" != "${{ steps.build-image.outputs.digest }}" ]]; then
+            echo "Local komelt/grafana:${{ inputs.TAG }} has same digest like remote. Skipping..."
+            echo "skip=true" >> $GITHUB_ENV
+          fi
+
       - name: Output sucessfull
         id: tag_succ_output
-        if: ${{ success() }}
+        if: ${{ success() && env.skip == false }}
         run: echo "success" > result.txt
 
       - name: Output failed
         id: tag_fail_output
-        if: ${{ failure() }}
+        if: ${{ failure() && env.skip == false }}
         run: echo "failure" > result.txt
 
       - name: Upload result as artifact
-        if: ${{ always() }}
+        if: ${{ always() && env.skip == false }}
         uses: actions/upload-artifact@v3
         with:
           name: result-${{ inputs.TAG }}
