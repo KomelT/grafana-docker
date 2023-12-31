@@ -53,9 +53,17 @@ jobs:
       - name: Process each tag
         run: |
           mkdir -p results
-          mv */*.txt results/  # Move all result files into a single directory for processing
+          # Instead of moving all *.txt files directly, loop through directories and rename
+          for dir in result-*; do
+            if [[ -d "$dir" ]]; then
+              TAG_DIR=${dir#result-}  # Extract tag name from directory name
+              mv "$dir/result.txt" "results/$TAG_DIR.txt"
+            fi
+          done
+      
+          # Now proceed with processing each tag
           for file in results/*.txt; do
-            TAG=${file#results/result-}  # Extract tag name from file name
+            TAG=${file#results/}  # Extract tag name from file name
             TAG=${TAG%.txt}  # Remove .txt extension
             RESULT=$(cat "$file")
             if [[ "$RESULT" == "success" ]]; then
@@ -66,4 +74,5 @@ jobs:
               echo "Tag $TAG failed tests. Skipping."
             fi
           done
+      
         
