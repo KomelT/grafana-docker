@@ -39,6 +39,13 @@ jobs:
           tags: "komelt/grafana:${{ inputs.TAG }}"
           no-cache: true
 
+      - name: "Test failing"
+        run: |
+          if [[ ${{ inputs.TAG }} == "main" ]]; then
+            echo "Tag is 'main'. Failing the job."
+            exit 1  # Exit with a non-zero code to fail the job
+          fi
+
       - name: Output as sucessfull
         id: tag_output
         if: ${{ success() }}
