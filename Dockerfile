@@ -1,3 +1,5 @@
+ARG SENTRY_AUTH_TOKEN
+
 FROM grafana/grafana:${IMAGE_TAG}
 
 ENV GF_INFLUXDB_URL=http://influxdb:8086
