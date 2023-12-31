@@ -44,6 +44,7 @@ jobs:
   push_tag:
     name: Push
     needs: ["test_tag", "process_image_tags"]
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
