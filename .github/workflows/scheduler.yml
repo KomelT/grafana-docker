@@ -24,6 +24,7 @@ jobs:
             TAG=$(echo $response | jq -r '.results[].name' | paste -sd "," -)
             TAGS="${TAGS},${TAG}"
           done
+          TAGS="${TAGS:1}"
           echo $TAGS
           echo "tags=$TAGS" >> $GITHUB_OUTPUT 
 
