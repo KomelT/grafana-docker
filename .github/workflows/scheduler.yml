@@ -43,9 +43,9 @@ jobs:
 
   agregate_tags:
     name: Agregate Tags
-    needs: ["test_tag"]
+    needs: test_tag
     outputs:
-      sucessfull-tags: ${{ steps.collect_success.outputs.successful-tags}}
+      matrix: ${{ steps.collect_success.outputs.successful-tags}}
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -85,7 +85,7 @@ jobs:
     secrets: inherit
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.agregate_tags.outputs.sucessfull-tags)}}
+      matrix: ${{fromJson(needs.agregate_tags.outputs.matrix)}}
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/publish.yml
