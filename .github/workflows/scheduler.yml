@@ -91,7 +91,7 @@ jobs:
   publish_tags:
     name: Publish (${{ matrix.tag }})
     needs: agregate_tags
-    if: ${{ always() && needs.agregate_tags.outputs.matrix != '{"include":[{"tag":""}]}' }}
+    if: always()
     secrets: inherit
     strategy:
       fail-fast: false
