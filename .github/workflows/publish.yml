@@ -18,7 +18,6 @@ on:
 jobs:
   push_to_registry:
     name: Publish to Docker Hub
-    if: ${{ inputs.TAG != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
