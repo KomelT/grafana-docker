@@ -13,6 +13,8 @@ jobs:
   build_test:
     name: Build Test
     runs-on: ubuntu-latest
+    outputs:
+      successful-tag: ${{ steps.tag_output.outputs.tag }}
     steps:
 
       - name: Checkout
@@ -28,7 +30,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile
           push: false
           tags: "komelt/grafana:${{ inputs.TAG }}"
           no-cache: true
+
+      - name: Output as sucessfull
+        id: tag_output
+        if: ${{ success() }}
+        run: echo "tag=$TAG" >> $GITHUB_OUTPUT
     

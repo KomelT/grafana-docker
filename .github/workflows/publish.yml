@@ -1,10 +1,14 @@
 # Docker Login: https://github.com/marketplace/actions/docker-login
 # Build and push Docker images: https://github.com/marketplace/actions/build-and-push-docker-images
 
-name: Build & Publish Docker image
+name: Publish image
 
 on:
   workflow_call:
+    inputs:
+      TAG:
+        type: string
+        required: true
     secrets:
       DOCKERHUB_USERNAME:
         required: true
@@ -13,7 +17,7 @@ on:
 
 jobs:
   push_to_registry:
-    name: Build & Publish Docker image to Docker Hub
+    name: Publish to Docker Hub
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -31,5 +35,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: komelt/grafana:latest
+          tags: "komelt/grafana:${{ inputs.TAG }}"
           no-cache: true

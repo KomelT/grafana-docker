@@ -39,4 +39,15 @@ jobs:
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test.yml
+
+  push_tag:
+    name: Push (${{ matrix.tag }})
+    needs: test_tag
+    if: ${{ always() && needs.test_tag.result == 'success' }}
+    strategy:
+      matrix : ${{fromJson(needs.test_tag.outputs.tag)}}
+    with:
+      TAG: ${{ matrix.tag }}
+    secrets: inherit
+    uses: ./.github/workflows/publish.yml
         
