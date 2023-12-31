@@ -35,8 +35,8 @@ jobs:
     name: Test (${{ matrix.tag }})
     needs: process_image_tags
     strategy:
-      matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
       fail-fast: false
+      matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test.yml
@@ -78,18 +78,17 @@ jobs:
           SUCCESSFUL_TAGS_JSON=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
           echo "successful-tags=$SUCCESSFUL_TAGS_JSON" >> $GITHUB_OUTPUT
 
-  push_tags:
+  publish_tags:
+    name: Publish (${{ matrix.tag }})
     needs: agregate_tags
     if: always()
-    runs-on: ubuntu-latest
+    secrets: inherit
     strategy:
       fail-fast: false
-      matrix:
-        tag: ${{fromJson(needs.agregate_tags.outputs.sucessfull-tags)}}
-    steps:
-      - name: Deploy Tag ${{ matrix.tag }}
-        run: |
-          # Your deployment or processing commands here, using ${{ matrix.tag }} as the tag to process
+      matrix: ${{fromJson(needs.agregate_tags.outputs.sucessfull-tags)}}
+    with:
+      TAG: ${{ matrix.tag }}
+    uses: ./.github/workflows/publish.yml
         
       
         
