@@ -36,6 +36,7 @@ jobs:
     needs: process_image_tags
     strategy:
       matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
+      fail-fast: false
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test.yml
