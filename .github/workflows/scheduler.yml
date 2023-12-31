@@ -73,7 +73,7 @@ jobs:
           # Initialize an empty array to hold successful tags
           SUCCESSFUL_TAGS=()
           for file in results/*.txt; do
-            if [[ -e "$file" ]];
+            if [[ -e "$file" ]]; then
               TAG=${file#results/}  # Extract tag name from file name
               TAG=${TAG%.txt}  # Remove .txt extension
               RESULT=$(cat "$file")
