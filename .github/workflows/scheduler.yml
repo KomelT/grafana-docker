@@ -76,6 +76,7 @@ jobs:
 
           # Convert the array of successful tags to a JSON string and set as output
           SUCCESSFUL_TAGS_JSON=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
+          echo $SUCCESSFUL_TAGS_JSON
           echo "successful-tags=$SUCCESSFUL_TAGS_JSON" >> $GITHUB_OUTPUT
 
   publish_tags:
