@@ -12,7 +12,7 @@ jobs:
     name: Process Grafana tags
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set_matrix.outputs.matrix }}
+      json_tag_matrix: ${{ steps.create_tag_matrix.outputs.json_tag_matrix }}
     steps:
       - name: Fetch image tags
         id: fetch_tags
@@ -20,37 +20,35 @@ jobs:
           echo "Fetching first 2 pages of tags..."
           TAGS=""
           for ((i=1; i <= 2; i++)); do
-            response=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.')
-            TAG=$(echo $response | jq -r '.results[].name' | paste -sd "," -)
-            TAGS="${TAGS},${TAG}"
+            TAGS_TMP=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.results[].name' | paste -sd "," -)
+            TAGS="${TAGS},${TAG_TMP}"
           done
           TAGS="${TAGS:1}"
-          echo $TAGS
+          echo "Fected comma-separated tags: ${TAGS}"
           echo "tags=$TAGS" >> $GITHUB_OUTPUT 
 
-      - name: Create JSON matrix
-        id: set_matrix
+      - name: Create JSON array from comma-separated tags
+        id: create_tag_matrix
         env:
-          TAGS: ${{ steps.fetch_tags.outputs.TAGS }}
+          TAGS_ARRAY: ${{ steps.fetch_tags.outputs.TAGS }}
         run: |
-          # Convert comma-separated tags into a JSON array
-          JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split(",")[:-1]')
-          echo $JSON_ARRAY
-          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+          TAGS_JSON_ARRAY=$(echo $TAGS_ARRAY | jq -R -s -c 'split(",")[:-1]')
+          echo "JSON Array of tags: ${TAGS_JSON_ARRAY}"
+          echo "json_tag_matrix={\"include\":$(echo $TAGS_JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
 
-  test_tag:
+  test_tags:
     name: Test (${{ matrix.tag }})
     needs: process_image_tags
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
+      matrix: ${{fromJson(needs.process_image_tags.outputs.json_tag_matrix)}}
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test.yml
 
   agregate_tags:
     name: Agregate Tags
-    needs: test_tag
+    needs: test_tags
     outputs:
       matrix: ${{ steps.collect_success.outputs.matrix}}
     if: always()
@@ -85,8 +83,10 @@ jobs:
 
           # Convert the array of successful tags to a JSON string and set as output
           JSON_ARRAY=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
-          echo $JSON_ARRAY
+          echo "Array of tags that will be pushed:  ${JSON_ARRAY}"
           echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+          echo "{\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}"
+
 
   publish_tags:
     name: Publish (${{ matrix.tag }})
@@ -99,6 +99,3 @@ jobs:
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/publish.yml
-        
-      
-        
