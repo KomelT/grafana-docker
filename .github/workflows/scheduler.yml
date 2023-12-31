@@ -17,9 +17,13 @@ jobs:
       - name: Fetch image tags
         id: fetch_tags
         run: |
-          echo "Fetching tags..."
-          TAGS=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags" | jq -r ".results[].name" | paste -sd "," -)
-          TAGS="latest,${TAGS}"
+          echo "Fetching first 2 pages of tags..."
+          TAGS=""
+          for ((i=1; i <= 2; i++)); do
+            response=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.')
+            TAG=$(echo $response | jq -r '.results[].name' | paste -sd "," -)
+            TAGS="${TAGS},${TAG}"
+          done
           echo $TAGS
           echo "tags=$TAGS" >> $GITHUB_OUTPUT 
 
