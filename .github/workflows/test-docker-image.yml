@@ -11,14 +11,11 @@ on:
 
 jobs:
   test_image_tag:
-    name: Test Docker Image
+    name: Test Docker image 'komelt/grafana:${{ inputs.TAG }}'
     runs-on: ubuntu-latest
     steps:
 
-      - name: Log tag
-        run: echo ${{ inputs.TAG }}
-
-      - name: Build Docker image
+      - name: Build Docker image 'komelt/grafana:${{ inputs.TAG }}'
         uses: docker/build-push-action@v5
         with:
           context: .
