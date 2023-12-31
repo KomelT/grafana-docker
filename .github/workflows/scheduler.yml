@@ -29,6 +29,7 @@ jobs:
         run: |
           # Convert comma-separated tags into a JSON array
           JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split(",")[:-1]')
+          echo $JSON_ARRAY
           echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
 
   test_tag:
