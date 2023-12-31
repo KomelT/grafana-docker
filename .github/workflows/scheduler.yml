@@ -41,38 +41,54 @@ jobs:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test.yml
 
-  push_tag:
-    name: Push
-    needs: ["test_tag", "process_image_tags"]
+  agregate_tags:
+    name: Agregate Tags
+    needs: ["test_tag"]
+    outputs:
+      sucessfull-tags: ${{ steps.collect_success.outputs.successful-tags}}
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v2
 
-      - name: Process each tag
+      - name: Collect Successful Tags
+        id: collect_success
         run: |
           mkdir -p results
-          # Instead of moving all *.txt files directly, loop through directories and rename
           for dir in result-*; do
             if [[ -d "$dir" ]]; then
               TAG_DIR=${dir#result-}  # Extract tag name from directory name
               mv "$dir/result.txt" "results/$TAG_DIR.txt"
             fi
           done
-      
-          # Now proceed with processing each tag
+
+          # Initialize an empty array to hold successful tags
+          SUCCESSFUL_TAGS=()
           for file in results/*.txt; do
             TAG=${file#results/}  # Extract tag name from file name
             TAG=${TAG%.txt}  # Remove .txt extension
             RESULT=$(cat "$file")
             if [[ "$RESULT" == "success" ]]; then
-              echo "Tag $TAG was successful. Proceeding to push."
-              # Add your logic to push the tag here, e.g.,
-              # docker push "yourimage:$TAG"
-            else
-              echo "Tag $TAG failed tests. Skipping."
+              SUCCESSFUL_TAGS+=("$TAG")
             fi
           done
+
+          # Convert the array of successful tags to a JSON string and set as output
+          SUCCESSFUL_TAGS_JSON=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
+          echo "successful-tags=$SUCCESSFUL_TAGS_JSON" >> $GITHUB_OUTPUT
+
+  push_tags:
+    needs: agregate_tags
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ${{fromJson(needs.agregate_tags.outputs.sucessfull-tags)}}
+    steps:
+      - name: Deploy Tag ${{ matrix.tag }}
+        run: |
+          # Your deployment or processing commands here, using ${{ matrix.tag }} as the tag to process
+        
       
         
