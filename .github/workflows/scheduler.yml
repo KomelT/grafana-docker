@@ -47,6 +47,5 @@ jobs:
     steps:
       - name: Log test output
         run: |
-          OUTPUTS_JSON='${{ needs.test_tag.outputs }}'
-          echo $OUTPUTS_JSON | jq '.'
+          echo ${{ needs.test_tag.outputs.successful-tags }}"
         
