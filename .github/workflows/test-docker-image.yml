@@ -16,7 +16,7 @@ jobs:
     steps:
 
       - name: Log tag
-        run: echo $TAG
+        run: echo ${{ inputs.TAG }}
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
