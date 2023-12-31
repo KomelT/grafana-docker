@@ -35,6 +35,6 @@ jobs:
     strategy:
       matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
     with:
-      TAG: $TAG
+      TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test-docker-image.yml
         
