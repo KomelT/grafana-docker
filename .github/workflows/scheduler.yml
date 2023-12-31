@@ -46,5 +46,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Log test output
-        run: echo "${{ needs.test_tag.outputs.successful-tags }}"
+        run: echo "${{ needs.test_tag.outputs.successful-tag }}"
         
