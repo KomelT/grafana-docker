@@ -46,7 +46,7 @@ jobs:
               response=$(curl -s "https://registry.hub.docker.com/v2/repositories/komelt/grafana/tags/?page=$i")
               DIGEST_TMP=$(echo $response | jq -r --arg TAG "$TAG" '.results[] | select(.name == $TAG) | .digest')
               
-              if [[ "$DIGEST_TMP" != ""]]; then
+              if [[ "$DIGEST_TMP" != "" ]]; then
                   DIGEST=$DIGEST_TMP
                   break
               fi
