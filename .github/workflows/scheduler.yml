@@ -51,15 +51,15 @@ jobs:
 
       - name: Process each tag
         run: |
-          mkdir results
+          mkdir -p results
           mv */*.txt results/  # Move all result files into a single directory for processing
           for file in results/*.txt; do
-            TAG=${file#result-}  # Extract tag name from file name
+            TAG=${file#results/result-}  # Extract tag name from file name
             TAG=${TAG%.txt}  # Remove .txt extension
             RESULT=$(cat "$file")
             if [[ "$RESULT" == "success" ]]; then
               echo "Tag $TAG was successful. Proceeding to push."
-              # Here you put your logic to push the tag, e.g.,
+              # Add your logic to push the tag here, e.g.,
               # docker push "yourimage:$TAG"
             else
               echo "Tag $TAG failed tests. Skipping."
