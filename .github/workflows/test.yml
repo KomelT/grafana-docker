@@ -1,6 +1,6 @@
 # Build and push Docker images: https://github.com/marketplace/actions/build-and-push-docker-images
 
-name: Test Docker image
+name: Test image
 
 on:
   workflow_call:
@@ -10,8 +10,8 @@ on:
         required: true
 
 jobs:
-  test_image_tag:
-    name: Test 'komelt/grafana:${{ inputs.TAG }}'
+  build_test:
+    name: Build Test
     runs-on: ubuntu-latest
     steps:
 
@@ -20,7 +20,7 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-        
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
