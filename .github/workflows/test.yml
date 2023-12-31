@@ -1,0 +1,54 @@
+# Build and push Docker images: https://github.com/marketplace/actions/build-and-push-docker-images
+
+name: Test image
+
+on:
+  workflow_call:
+    inputs:
+      TAG:
+        type: string
+        required: true
+
+jobs:
+  build_test:
+    name: Build Test
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build 'komelt/grafana:${{ inputs.TAG }}'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: "komelt/grafana:${{ inputs.TAG }}"
+          build-args: |
+            "IMAGE_TAG=${{ inputs.TAG }}"
+          no-cache: true
+
+      - name: Output sucessfull
+        id: tag_succ_output
+        if: ${{ success() }}
+        run: echo "success" > result.txt
+
+      - name: Output failed
+        id: tag_fail_output
+        if: ${{ failure() }}
+        run: echo "failure" > result.txt
+
+      - name: Upload result as artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: result-${{ inputs.TAG }}
+          path: result.txt
+    

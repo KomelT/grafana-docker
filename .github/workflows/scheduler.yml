@@ -1,0 +1,102 @@
+name: Scheduled Docker image
+
+on:
+  push:
+    branches:
+      - "*"
+  schedule:
+    - cron: '0 12 * * *'
+
+jobs:
+  process_image_tags:
+    name: Process Grafana tags
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
+    steps:
+      - name: Fetch image tags
+        id: fetch_tags
+        run: |
+          echo "Fetching first 2 pages of tags..."
+          TAGS=""
+          for ((i=1; i <= 2; i++)); do
+            response=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.')
+            TAG=$(echo $response | jq -r '.results[].name' | paste -sd "," -)
+            TAGS="${TAGS},${TAG}"
+          done
+          TAGS="${TAGS:1}"
+          echo $TAGS
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT 
+
+      - name: Create JSON matrix
+        id: set_matrix
+        env:
+          TAGS: ${{ steps.fetch_tags.outputs.TAGS }}
+        run: |
+          # Convert comma-separated tags into a JSON array
+          JSON_ARRAY=$(echo $TAGS | jq -R -s -c 'split(",")[:-1]')
+          echo $JSON_ARRAY
+          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+
+  test_tag:
+    name: Test (${{ matrix.tag }})
+    needs: process_image_tags
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.process_image_tags.outputs.matrix)}}
+    with:
+      TAG: ${{ matrix.tag }}
+    uses: ./.github/workflows/test.yml
+
+  agregate_tags:
+    name: Agregate Tags
+    needs: test_tag
+    outputs:
+      matrix: ${{ steps.collect_success.outputs.matrix}}
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Collect Successful Tags
+        id: collect_success
+        run: |
+          mkdir -p results
+          for dir in result-*; do
+            if [[ -d "$dir" ]]; then
+              TAG_DIR=${dir#result-}  # Extract tag name from directory name
+              mv "$dir/result.txt" "results/$TAG_DIR.txt"
+            fi
+          done
+
+          # Initialize an empty array to hold successful tags
+          SUCCESSFUL_TAGS=()
+          for file in results/*.txt; do
+            TAG=${file#results/}  # Extract tag name from file name
+            TAG=${TAG%.txt}  # Remove .txt extension
+            RESULT=$(cat "$file")
+            if [[ "$RESULT" == "success" ]]; then
+              SUCCESSFUL_TAGS+=("$TAG")
+            fi
+          done
+
+          # Convert the array of successful tags to a JSON string and set as output
+          JSON_ARRAY=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
+          echo $JSON_ARRAY
+          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+
+  publish_tags:
+    name: Publish (${{ matrix.tag }})
+    needs: agregate_tags
+    if: always()
+    secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.agregate_tags.outputs.matrix)}}
+    with:
+      TAG: ${{ matrix.tag }}
+    uses: ./.github/workflows/publish.yml
+        
+      
+        
