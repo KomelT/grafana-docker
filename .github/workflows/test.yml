@@ -18,7 +18,7 @@ jobs:
     name: Build Test
     runs-on: ubuntu-latest
     outputs:
-      successful-tag: ${{ steps.tag_output.outputs.tag }}
+      successful-tag: ${{ steps.tag_output.outputs.successful-tag }}
     steps:
 
       - name: Checkout
