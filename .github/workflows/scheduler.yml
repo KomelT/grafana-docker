@@ -20,7 +20,7 @@ jobs:
       matrix: ${{ fromJson(needs.get_tags.outputs.TAGS_JSON_MATRIX) }}
     with:
       TAG: ${{ matrix.tag }}
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/test_image.yml
 
   agregate_updated_tags:
     name: Agregate Tags
