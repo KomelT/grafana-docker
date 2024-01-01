@@ -10,7 +10,7 @@ jobs:
   fetch_tags:
     name: Fetch Tags
     outputs:
-      TAGS_CSV: ${{ steps.fetch_tags.outcome.TAGS_CSV }}
+      TAGS_CSV: ${{ steps.fetch_tags.outputs.TAGS_CSV }}
     runs-on: ubuntu-latest
     steps:
       - name: Fetch Tags
