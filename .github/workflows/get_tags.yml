@@ -7,8 +7,8 @@ on:
         value: ${{ jobs.process_tags.outputs.TAGS_JSON_MATRIX }}
 
 jobs:
-  get_tags:
-    name: Get Tags
+  fetch_tags:
+    name: Fetch Tags
     outputs:
       TAGS_CSV: ${{ steps.fetch_tags.outcome.TAGS_CSV }}
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
 
   process_tags:
     name: Process Tags
-    needs: get_tags
+    needs: fetch_tags
     outputs:
       TAGS_JSON_MATRIX: ${{ steps.create_json_tag_matrix.outputs.TAGS_JSON_MATRIX }}
     runs-on: ubuntu-latest
@@ -37,5 +37,5 @@ jobs:
         id: create_json_tag_matrix
         run: |
           TAGS_JSON_ARRAY=$(echo $TAGS_CSV | jq -R -s -c 'split(",")[:-1]')
-          echo "JSON Array of tags: ${{ needs.get_tags.outputs.TAGS_CSV }}"
+          echo "JSON Array of tags: ${{ needs.fetch_tags.outputs.TAGS_CSV }}"
           echo "TAGS_JSON_MATRIX={\"include\":$(echo $TAGS_JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
