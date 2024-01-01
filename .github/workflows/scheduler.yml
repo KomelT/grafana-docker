@@ -9,7 +9,7 @@ on:
 
 jobs:
   get_tags:
-    name: Get Image Tags
+    name: Get Tags
     uses: ./.github/workflows/get_tags.yml
 
   test_tags:
