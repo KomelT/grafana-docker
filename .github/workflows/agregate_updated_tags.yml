@@ -1,14 +1,14 @@
-name: Agregate Image Tags
+name: Agregate Tags
 
 on:
   workflow_call:
     outputs:
       UPDATED_TAGS_MATRIX:
-        value: ${{ jobs.agregate_image_tags.outputs.matrix }}
+        value: ${{ jobs.agregate_tags.outputs.matrix }}
 
 jobs:
-  agregate_image_tags:
-    name: Agregate Image Tags
+  agregate_tags:
+    name: Agregate Tags
     outputs:
       matrix: ${{ steps.collect_success.outputs.matrix}}
     runs-on: ubuntu-latest
