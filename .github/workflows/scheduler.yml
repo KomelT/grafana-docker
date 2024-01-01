@@ -30,13 +30,13 @@ jobs:
     
 
   publish_tags:
-    name: Publish (${{ matrix.tag }})
+    name: ${{ matrix.tag }}
     needs: agregate_updated_tags
-    if: ${{ always() && github.repository == 'main' }}
+    if: ${{ always() }}
     secrets: inherit
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.agregate_updated_tags.outputs.UPDATED_TAGS_MATRIX) }}
     with:
       TAG: ${{ matrix.tag }}
-    uses: ./.github/workflows/publish.yml
+    uses: ./.github/workflows/publish_image.yml
