@@ -19,6 +19,7 @@ jobs:
   push_to_registry:
     name: Publish to Docker Hub
     runs-on: ubuntu-latest
+    if: ${{ inputs.TAG != '' }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -30,7 +31,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: Build & Publish Docker image
-        if: ${{ inputs.TAG != '' }}
         uses: docker/build-push-action@v5
         with:
           context: .

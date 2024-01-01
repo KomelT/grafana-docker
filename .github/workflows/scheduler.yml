@@ -1,101 +1,42 @@
-name: Scheduled Docker image
+name: Scheduler
 
 on:
   push:
     branches:
-      - "*"
+      - '*'
   schedule:
     - cron: '0 12 * * *'
 
 jobs:
-  process_image_tags:
-    name: Process Grafana tags
-    runs-on: ubuntu-latest
-    outputs:
-      json_tag_matrix: ${{ steps.create_tag_matrix.outputs.json_tag_matrix }}
-    steps:
-      - name: Fetch image tags
-        id: fetch_tags
-        run: |
-          echo "Fetching first 2 pages of tags..."
-          TAGS=""
-          for ((i=1; i <= 2; i++)); do
-            TAGS_TMP=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.results[].name' | paste -sd "," -)
-            TAGS="${TAGS},${TAGS_TMP}"
-          done
-          TAGS="${TAGS:1}"
-          echo "Fected comma-separated tags: ${TAGS}"
-          echo "tags=$TAGS" >> $GITHUB_OUTPUT 
-
-      - name: Create JSON array from comma-separated tags
-        id: create_tag_matrix
-        env:
-          TAGS_ARRAY: ${{ steps.fetch_tags.outputs.TAGS }}
-        run: |
-          TAGS_JSON_ARRAY=$(echo $TAGS_ARRAY | jq -R -s -c 'split(",")[:-1]')
-          echo "JSON Array of tags: ${TAGS_JSON_ARRAY}"
-          echo "json_tag_matrix={\"include\":$(echo $TAGS_JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+  get_tags:
+    name: Get Tags
+    uses: ./.github/workflows/get_tags.yml
 
   test_tags:
-    name: Test (${{ matrix.tag }})
-    needs: process_image_tags
+    name: ${{ matrix.tag }}
+    needs: get_tags
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.process_image_tags.outputs.json_tag_matrix)}}
+      matrix: ${{ fromJson(needs.get_tags.outputs.TAGS_JSON_MATRIX) }}
     with:
       TAG: ${{ matrix.tag }}
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/test_image.yml
 
-  agregate_tags:
+  agregate_updated_tags:
     name: Agregate Tags
     needs: test_tags
-    outputs:
-      matrix: ${{ steps.collect_success.outputs.matrix}}
-    if: always() 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Collect Successful Tags
-        id: collect_success
-        run: |
-          mkdir -p results
-          for dir in result-*; do
-            if [[ -d "$dir" ]]; then
-              TAG_DIR=${dir#result-}  # Extract tag name from directory name
-              mv "$dir/result.txt" "results/$TAG_DIR.txt"
-            fi
-          done
-
-          # Initialize an empty array to hold successful tags
-          SUCCESSFUL_TAGS=()
-          for file in results/*.txt; do
-            if [[ -e "$file" ]]; then
-              TAG=${file#results/}  # Extract tag name from file name
-              TAG=${TAG%.txt}  # Remove .txt extension
-              RESULT=$(cat "$file")
-              if [[ "$RESULT" == "success" ]]; then
-                SUCCESSFUL_TAGS+=("$TAG")
-              fi
-            fi
-          done
-
-          # Convert the array of successful tags to a JSON string and set as output
-          JSON_ARRAY=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
-          echo "Array of tags that will be pushed:  ${JSON_ARRAY}"
-          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
-          echo "{\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}"
-
+    if: always()
+    uses: ./.github/workflows/agregate_updated_tags.yml
+    
 
   publish_tags:
-    name: Publish (${{ matrix.tag }})
-    needs: agregate_tags
-    if: always()
+    name: ${{ matrix.tag }}
+    needs: agregate_updated_tags
+    if: ${{ always() && needs.agregate_updated_tags.outputs.UPDATED_TAGS_MATRIX != '{"include":[{"tag":""}]}' }}
     secrets: inherit
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.agregate_tags.outputs.matrix)}}
+      matrix: ${{ fromJson(needs.agregate_updated_tags.outputs.UPDATED_TAGS_MATRIX) }}
     with:
       TAG: ${{ matrix.tag }}
-    uses: ./.github/workflows/publish.yml
+    uses: ./.github/workflows/publish_image.yml

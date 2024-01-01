@@ -1,0 +1,48 @@
+name: Agregate Tags
+
+on:
+  workflow_call:
+    outputs:
+      UPDATED_TAGS_MATRIX:
+        value: ${{ jobs.agregate_tags.outputs.matrix }}
+
+jobs:
+  agregate_tags:
+    name: Agregate Tags
+    outputs:
+      matrix: ${{ steps.collect_success.outputs.matrix}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Collect Successful Tags
+        id: collect_success
+        run: |
+          mkdir -p results
+          for dir in result-*; do
+            if [[ -d "$dir" ]]; then
+              TAG_DIR=${dir#result-}  # Extract tag name from directory name
+              mv "$dir/result.txt" "results/$TAG_DIR.txt"
+            fi
+          done
+
+          # Initialize an empty array to hold successful tags
+          SUCCESSFUL_TAGS=()
+          for file in results/*.txt; do
+            if [[ -e "$file" ]]; then
+              TAG=${file#results/}  # Extract tag name from file name
+              TAG=${TAG%.txt}  # Remove .txt extension
+              RESULT=$(cat "$file")
+              if [[ "$RESULT" == "success" ]]; then
+                SUCCESSFUL_TAGS+=("$TAG")
+              fi
+            fi
+          done
+
+          # Convert the array of successful tags to a JSON string and set as output
+          JSON_ARRAY=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
+          echo "Array of tags that will be pushed:  ${JSON_ARRAY}"
+          echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+          echo "{\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}"
+
