@@ -33,4 +33,4 @@ jobs:
         run: |
           TAGS_CSV=$(echo $TAGS_CSV | jq -R -s -c 'split(",")[:-1]')
           echo "JSON Array of tags: ${TAGS_CSV}"
-          echo "TAGS_JSON_MATRIX={\"include\":$(echo $TAGS_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+          echo "TAGS_JSON_MATRIX={\"include\":$(echo $TAGS_CSV | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
