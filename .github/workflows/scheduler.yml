@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/get_tags.yml
 
   test_tags:
-    name: Test (${{ matrix.tag }})
+    name: ${{ matrix.tag }}
     needs: get_tags
     strategy:
       fail-fast: false
