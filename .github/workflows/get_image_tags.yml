@@ -1,0 +1,36 @@
+name: Get Image Tags
+
+on:
+  workflow_call:
+    outputs:
+      TAGS_JSON_MATRIX:
+        value: ${{ jobs.get_image_tags.outputs.TAGS_JSON_MATRIX }}
+
+jobs:
+  get_image_tags:
+    name: Get Image Tags
+    outputs:
+      TAGS_JSON_MATRIX: ${{ steps.create_json_tag_matrix.outputs.TAGS_JSON_MATRIX }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Image Tags
+        id: fetch_tags
+        run: |
+          echo "Fetching first 2 pages of tags..."
+          TAGS_CSV=""
+          for ((i=1; i <= 2; i++)); do
+            TAGS_TMP=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.results[].name' | paste -sd "," -)
+            TAGS_CSV="${TAGS_CSV},${TAGS_TMP}"
+          done
+          TAGS_CSV="${TAGS_CSV:1}" # Remove first character
+          echo "Fected comma-separated tags: ${TAGS_CSV}"
+          echo "tags=$TAGS_CSV" >> $GITHUB_OUTPUT 
+
+      - name: Create JSON matrix
+        id: create_json_tag_matrix
+        env:
+          TAGS_CSV: ${{ steps.fetch_tags.outputs.TAGS_CSV }}
+        run: |
+          TAGS_CSV=$(echo $TAGS_CSV | jq -R -s -c 'split(",")[:-1]')
+          echo "JSON Array of tags: ${TAGS_CSV}"
+          echo "TAGS_JSON_MATRIX={\"include\":$(echo $TAGS_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT

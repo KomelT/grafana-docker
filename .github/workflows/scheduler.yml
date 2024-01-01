@@ -1,47 +1,23 @@
-name: Scheduled Docker image
+name: Scheduler
 
 on:
   push:
     branches:
-      - "*"
+      - '*'
   schedule:
     - cron: '0 12 * * *'
 
 jobs:
-  process_image_tags:
-    name: Process Grafana tags
-    runs-on: ubuntu-latest
-    outputs:
-      json_tag_matrix: ${{ steps.create_tag_matrix.outputs.json_tag_matrix }}
-    steps:
-      - name: Fetch image tags
-        id: fetch_tags
-        run: |
-          echo "Fetching first 2 pages of tags..."
-          TAGS=""
-          for ((i=1; i <= 2; i++)); do
-            TAGS_TMP=$(curl -s "https://registry.hub.docker.com/v2/repositories/grafana/grafana/tags/?page=$i" | jq -r '.results[].name' | paste -sd "," -)
-            TAGS="${TAGS},${TAGS_TMP}"
-          done
-          TAGS="${TAGS:1}"
-          echo "Fected comma-separated tags: ${TAGS}"
-          echo "tags=$TAGS" >> $GITHUB_OUTPUT 
-
-      - name: Create JSON array from comma-separated tags
-        id: create_tag_matrix
-        env:
-          TAGS_ARRAY: ${{ steps.fetch_tags.outputs.TAGS }}
-        run: |
-          TAGS_JSON_ARRAY=$(echo $TAGS_ARRAY | jq -R -s -c 'split(",")[:-1]')
-          echo "JSON Array of tags: ${TAGS_JSON_ARRAY}"
-          echo "json_tag_matrix={\"include\":$(echo $TAGS_JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
+  get_image_tags:
+    name: Get Image Tags
+    uses: ./.github/workflows/get_image_tags.yml
 
   test_tags:
     name: Test (${{ matrix.tag }})
-    needs: process_image_tags
+    needs: get_image_tags
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.process_image_tags.outputs.json_tag_matrix)}}
+      matrix: ${{ fromJson(needs.get_image_tags.outputs.TAGS_JSON_MATRIX) }}
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test.yml
@@ -91,11 +67,11 @@ jobs:
   publish_tags:
     name: Publish (${{ matrix.tag }})
     needs: agregate_tags
-    if: always()
+    if: ${{ always() && github.repository == 'main' }}
     secrets: inherit
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.agregate_tags.outputs.matrix)}}
+      matrix: ${{ fromJson(needs.agregate_tags.outputs.matrix) }}
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/publish.yml
