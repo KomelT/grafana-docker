@@ -8,16 +8,16 @@ on:
     - cron: '0 12 * * *'
 
 jobs:
-  get_image_tags:
+  get_tags:
     name: Get Image Tags
-    uses: ./.github/workflows/get_image_tags.yml
+    uses: ./.github/workflows/get_tags.yml
 
   test_tags:
     name: Test (${{ matrix.tag }})
-    needs: get_image_tags
+    needs: get_tags
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.get_image_tags.outputs.TAGS_JSON_MATRIX) }}
+      matrix: ${{ fromJson(needs.get_tags.outputs.TAGS_JSON_MATRIX) }}
     with:
       TAG: ${{ matrix.tag }}
     uses: ./.github/workflows/test.yml
