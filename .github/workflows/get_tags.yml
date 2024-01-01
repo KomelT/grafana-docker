@@ -35,7 +35,9 @@ jobs:
     steps:
       - name: Create JSON matrix
         id: create_json_tag_matrix
+        env:
+          TAGS_CSV: ${{ needs.fetch_tags.outputs.TAGS_CSV }}
         run: |
           TAGS_JSON_ARRAY=$(echo $TAGS_CSV | jq -R -s -c 'split(",")[:-1]')
-          echo "JSON Array of tags: ${{ needs.fetch_tags.outputs.TAGS_CSV }}"
+          echo "JSON Array of tags: ${TAGS_CSV}"
           echo "TAGS_JSON_MATRIX={\"include\":$(echo $TAGS_JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
