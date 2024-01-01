@@ -24,7 +24,7 @@ jobs:
           done
           TAGS_CSV="${TAGS_CSV:1}" # Remove first character
           echo "Fected comma-separated tags: ${TAGS_CSV}"
-          echo "TAGS_CSV=$TAGS_CSV" >> $GITHUB_OUTPUT
+          echo "TAGS_CSV=${TAGS_CSV}" >> $GITHUB_OUTPUT
 
   process_tags:
     name: Process Tags
@@ -39,5 +39,5 @@ jobs:
           TAGS_CSV: ${{ needs.fetch_tags.outputs.TAGS_CSV }}
         run: |
           TAGS_JSON_ARRAY=$(echo $TAGS_CSV | jq -R -s -c 'split(",")[:-1]')
-          echo "JSON Array of tags: ${TAGS_CSV}"
+          echo "JSON Array of tags: ${TAGS_JSON_ARRAY}"
           echo "TAGS_JSON_MATRIX={\"include\":$(echo $TAGS_JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
