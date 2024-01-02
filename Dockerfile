@@ -1,6 +1,6 @@
-ARG IMAGE_TAG
+ARG BASE_IMAGE_TAG
 
-FROM grafana/grafana:${IMAGE_TAG}
+FROM grafana/grafana:${BASE_IMAGE_TAG}
 
 ENV GF_INFLUXDB_URL=http://influxdb:8086
 ENV GF_INFLUXDB_BUCKET=metrics
