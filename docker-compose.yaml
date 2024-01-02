@@ -1,13 +1,19 @@
+# Grafana ENVs: https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/
+
 version: "3.9"
 services:
 
   grafana:
     build:
       dockerfile: Dockerfile
+      args:
+        BASE_IMAGE_TAG: latest
     container_name: grafana
     ports:
       - 3000:3000
     environment:
+      GF_SECURITY_ADMIN_USER: grafanaadmin
+      GF_SECURITY_ADMIN_PASSWORD: grafanapassword
       GF_INFLUXDB_URL: "http://influxdb:8086"
       GF_INFLUXDB_TOKEN: "th1515ntr3alt0k3n=="
       GF_INFLUXDB_ORG: "testorg"
