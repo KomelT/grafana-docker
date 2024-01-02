@@ -18,7 +18,7 @@ jobs:
       - name: Docker compose up
         uses: isbang/compose-action@v1.5.1
         with:
-          compose-file: docker-compose.ci.yaml
+          compose-file: ./docker-compose.ci.yaml
         env:
           BASE_IMAGE_TAG: ${{ inputs.TAG }}
 
