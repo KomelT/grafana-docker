@@ -9,6 +9,7 @@ deleteDatasources:
 
 datasources:
   - name: InfluxDB
+    id: 1
     type: influxdb
     access: proxy
     orgId: 1
