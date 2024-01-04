@@ -16,6 +16,8 @@ services:
       GF_INFLUXDB_TOKEN: "th1515ntr3alt0k3n=="
       GF_INFLUXDB_ORG: "testorg"
       GF_INFLUXDB_BUCKET: "testbucket"
+    volumes:
+      - /data/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
 
   influxdb:
     image: influxdb:latest
