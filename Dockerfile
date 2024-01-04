@@ -14,7 +14,6 @@ ENV GF_INFLUXDB_TLS_SKIP_VERIFY=true
 COPY ./provisioning/datasources/automatic.yaml /
 
 # Add config to run.sh
-RUN exec_grafana_server_line=$(grep -n "exec grafana server" /run.sh)
 RUN sed -i '80i# START ---------------- Added by Tilen Komel \<me@komelt.dev\>' /run.sh
 RUN sed -i '81icp /automatic.yaml /etc/grafana/provisioning/datasources/' /run.sh
 RUN sed -i '82i# END ------------------\n' /run.sh
