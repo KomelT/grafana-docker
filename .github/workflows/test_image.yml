@@ -60,7 +60,7 @@ jobs:
                   break
               fi
           done
-          echo "Remote Digest: ${DIGEST_REMOTE}"
+          echo "DIGEST_REMOTE=$DIGEST_REMOTE" >> $GITHUB_ENV
 
       - name: Test if digests are different
         run: |
