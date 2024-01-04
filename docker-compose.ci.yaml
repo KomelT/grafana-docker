@@ -11,7 +11,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      GF_SECURITY_ADMIN_USER: grafanaadmi
+      GF_SECURITY_ADMIN_USER: grafanaadmin
       GF_SECURITY_ADMIN_PASSWORD: grafanapassword
       GF_INFLUXDB_URL: "http://influxdb:8086"
       GF_INFLUXDB_TOKEN: "th1515ntr3alt0k3n=="
