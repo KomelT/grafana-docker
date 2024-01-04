@@ -41,8 +41,15 @@ jobs:
             fi
           done
 
-      - name: Test if InfluxDB config exist in mount
-        run: diff ./data/grafana/provisioning/datasources/automatic.yaml ./provisioning/datasources/automatic.yaml
+      - name: Test if InfluxDB conf exists in mount
+        run: |
+          if ! diff ./README.md ./provisioning/datasources/automatic.yaml > /dev/null; then
+            echo "Files are different. Failing the step."
+            exit 1
+          else
+            echo "Files are the same. Continuing."
+          fi
+      
 
   build_test:
     name: Build Test
