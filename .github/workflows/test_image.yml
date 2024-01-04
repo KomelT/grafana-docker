@@ -23,7 +23,7 @@ jobs:
         with:
           compose-file: ./docker-compose.ci.yaml
         env:
-          BASE_IMAGE_TAG: ${{ inputs.TAG }}
+          GRAFANA_VERSION: ${{ inputs.TAG }}
 
       - name: Wait for Grafana to be ready
         timeout-minutes: 10
@@ -65,7 +65,7 @@ jobs:
           push: false
           tags: "komelt/grafana:${{ inputs.TAG }}"
           build-args: |
-            "BASE_IMAGE_TAG=${{ inputs.TAG }}"
+            "GRAFANA_VERSION=${{ inputs.TAG }}"
           no-cache: true
 
   if_local_image_newer:

@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: Dockerfile
       args:
-        BASE_IMAGE_TAG: $BASE_IMAGE_TAG
+        GRAFANA_VERSION: $GRAFANA_VERSION
     container_name: grafana
     ports:
       - 3000:3000
