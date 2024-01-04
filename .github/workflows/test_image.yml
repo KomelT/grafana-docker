@@ -49,6 +49,22 @@ jobs:
           else
             echo "Files are the same. Continuing."
           fi
+
+      - name: Test in Grafana API if InfluxDB config exists
+        run: |
+          # Fetch the JSON from the Grafana API
+          JSON_FROM_CURL=$(curl -s "http://grafanaadmin:grafanapassword@localhost:3000/api/datasources/1")
+      
+          # Define the expected JSON
+          EXPECTED_JSON='{"id": 1,"jsonData": {"defaultBucket": "testbucket","organization": "testorg","tlsSkipVerify": true,"version": "Flux"},"name": "InfluxDB","type": "influxdb","uid": "P951FEA4DE68E13C5","url": "http://influxdb:8086"}'
+
+          # Normalize and compare the JSON
+          if ! diff <(echo $JSON_FROM_CURL | jq --sort-keys '. | {id: .id, uid: .uid, name: .name, type: .type, url: .url, jsonData: .jsonData}' ) <(echo $EXPECTED_JSON | jq --sort-keys ) > /dev/null; then
+            echo "JSON structures are different. Failing the step."
+            exit 1
+          else
+            echo "JSON structures are the same. Continuing."
+          fi
       
 
   build_test:
