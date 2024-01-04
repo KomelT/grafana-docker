@@ -58,6 +58,9 @@ jobs:
           # Define the expected JSON
           EXPECTED_JSON='{"id":1,"uid":"P951FEA4DE68E13C5","orgId":1,"name":"InfluxDB","type":"influxdb","typeLogoUrl":"","access":"proxy","url":"http://influxdb:8086","user":"","database":"","basicAuth":false,"basicAuthUser":"","withCredentials":false,"isDefault":true,"jsonData":{"defaultBucket":"testbucket","organization":"testorg","tlsSkipVerify":true,"version":"Flux"},"secureJsonFields":{"token":true},"version":1,"readOnly":true}'
 
+          echo $JSON_FROM_CURL
+          echo $EXPECTED_JSON
+
           # Normalize and compare the JSON
           if ! diff <(echo $JSON_FROM_CURL | jq --sort-keys .) <(echo $EXPECTED_JSON | jq --sort-keys .) > /dev/null; then
             echo "JSON structures are different. Failing the step."
