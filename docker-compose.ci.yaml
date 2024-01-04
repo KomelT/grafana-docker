@@ -7,6 +7,7 @@ services:
       args:
         GRAFANA_VERSION: $GRAFANA_VERSION
     container_name: grafana
+    user: "0"
     ports:
       - 3000:3000
     environment:
@@ -17,7 +18,7 @@ services:
       GF_INFLUXDB_ORG: "testorg"
       GF_INFLUXDB_BUCKET: "testbucket"
     volumes:
-      - /data/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./data/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
 
   influxdb:
     image: influxdb:latest
