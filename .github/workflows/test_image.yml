@@ -1,3 +1,4 @@
+# Docker compose actions: https://github.com/marketplace/actions/docker-compose-action
 # Build and push Docker images: https://github.com/marketplace/actions/build-and-push-docker-images
 
 name: Test Image
@@ -10,13 +11,52 @@ on:
         required: true
 
 jobs:
+  compose_up:
+    name: Compose up
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker compose up
+        uses: isbang/compose-action@v1.5.1
+        with:
+          compose-file: ./docker-compose.ci.yaml
+        env:
+          GRAFANA_VERSION: ${{ inputs.TAG }}
+
+      - name: Wait for Grafana to be ready
+        timeout-minutes: 10
+        run: |
+          status=0
+          sleep 10
+          while [ $status -ne 200 ]; do
+            status=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000/api/health || echo 0)
+            if [ $status -eq 200 ]; then
+              echo "Service is up with status: $status"
+              break
+            else
+              echo "Waiting for service to be up... Status: $status"
+              sleep 5
+            fi
+          done
+
+      - name: Test if InfluxDB conf exists in mount
+        run: |
+          if ! diff ./data/grafana/provisioning/datasources/automatic.yaml ./provisioning/datasources/automatic.yaml > /dev/null; then
+            echo "Files are different. Failing the step."
+            exit 1
+          else
+            echo "Files are the same. Continuing."
+          fi
+      
+
   build_test:
     name: Build Test
     outputs:
       DIGEST_LOCAL: ${{ steps.build_image.outputs.digest }}
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -35,7 +75,7 @@ jobs:
           push: false
           tags: "komelt/grafana:${{ inputs.TAG }}"
           build-args: |
-            "IMAGE_TAG=${{ inputs.TAG }}"
+            "GRAFANA_VERSION=${{ inputs.TAG }}"
           no-cache: true
 
   if_local_image_newer:

@@ -1,5 +1,3 @@
-# Grafana ENVs: https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/
-
 version: "3.9"
 services:
 
@@ -7,8 +5,9 @@ services:
     build:
       dockerfile: Dockerfile
       args:
-        GRAFANA_VERSION: latest
+        GRAFANA_VERSION: $GRAFANA_VERSION
     container_name: grafana
+    user: "0"
     ports:
       - 3000:3000
     environment:
@@ -18,6 +17,8 @@ services:
       GF_INFLUXDB_TOKEN: "th1515ntr3alt0k3n=="
       GF_INFLUXDB_ORG: "testorg"
       GF_INFLUXDB_BUCKET: "testbucket"
+    volumes:
+      - ./data/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
 
   influxdb:
     image: influxdb:latest

@@ -38,5 +38,5 @@ jobs:
           push: true
           tags: "komelt/grafana:${{ inputs.TAG }}"
           build-args: |
-            "IMAGE_TAG=${{ inputs.TAG }}"
+            "GRAFANA_VERSION=${{ inputs.TAG }}"
           no-cache: true
