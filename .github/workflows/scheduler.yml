@@ -32,7 +32,7 @@ jobs:
   publish_tags:
     name: ${{ matrix.tag }}
     needs: agregate_updated_tags
-    if: ${{ always() && needs.agregate_updated_tags.outputs.UPDATED_TAGS_MATRIX != '{"include":[{"tag":""}]}' }}
+    if: ${{ always() && needs.agregate_updated_tags.outputs.UPDATED_TAGS_MATRIX != '{"include":[{"tag":""}]}' && github.ref_name == 'main' }}
     secrets: inherit
     strategy:
       fail-fast: false

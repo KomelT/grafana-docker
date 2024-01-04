@@ -44,6 +44,5 @@ jobs:
           JSON_ARRAY=$(printf '%s\n' "${SUCCESSFUL_TAGS[@]}" | jq -R -s -c 'split("\n")[:-1]')
           echo "Array of tags that will be pushed:  ${JSON_ARRAY}"
           echo "matrix={\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}" >> $GITHUB_OUTPUT
-          echo "{\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}
-          echo ${{ github.ref_name }}"
+          echo "{\"include\":$(echo $JSON_ARRAY | jq -c '[.[] | {"tag": .}]')}"
 
