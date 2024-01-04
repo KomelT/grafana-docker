@@ -42,7 +42,7 @@ jobs:
           done
 
       - name: Test if InfluxDB config exist in mount
-        run: diff /data/grafana/provisioning/datasources/automatic.yaml ./provisioning/datasources/automatic.yaml
+        run: diff ./data/grafana/provisioning/datasources/automatic.yaml ./provisioning/datasources/automatic.yaml
 
   build_test:
     name: Build Test
