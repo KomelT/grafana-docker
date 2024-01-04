@@ -39,9 +39,6 @@ jobs:
           no-cache: true
           load: true
 
-      - name: Outputs local digest
-        run: "echo Local Digest: ${{ steps.build_image.outputs.digest }}"
-
   if_local_image_newer:
     name: Test if local Image is newer
     needs: build_test
