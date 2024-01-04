@@ -31,7 +31,7 @@ jobs:
           status=0
           sleep 10
           while [ $status -ne 200 ]; do
-            status=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000/api/health)
+            status=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3000/api/health || echo 0)
             if [ $status -eq 200 ]; then
               echo "Service is up with status: $status"
               break
