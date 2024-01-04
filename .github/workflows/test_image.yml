@@ -37,6 +37,7 @@ jobs:
           build-args: |
             "GRAFANA_VERSION=${{ inputs.TAG }}"
           no-cache: true
+          load: true
 
       - name: Outputs local digest
         run: "echo Local Digest: ${{ steps.build_image.outputs.metadata }}"
