@@ -39,7 +39,7 @@ jobs:
           no-cache: true
 
       - name: Outputs local digest
-        run: "echo 'Local Digest: ${{ steps.build_image.outputs.digest }}'"
+        run: "echo Local Digest: ${{ steps.build_image.outputs.metadata }}"
 
   if_local_image_newer:
     name: Test if local Image is newer
