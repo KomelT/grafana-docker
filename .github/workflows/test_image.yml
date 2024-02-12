@@ -112,6 +112,7 @@ jobs:
               
               if [[ "$DIGEST_TMP" != "" ]]; then
                   DIGEST_REMOTE=$DIGEST_TMP
+                  echo "DIGEST_REMOTE=$DIGEST_TMP" >> $GITHUB_ENV
                   break
               fi
           done
