@@ -92,7 +92,7 @@ jobs:
           tags: "komelt/grafana:${{ inputs.TAG }}"
           build-args: |
             "GRAFANA_VERSION=${{ inputs.TAG }}"
-          no-cache: true
+          no-cache: false
           load: true
       - name: Echo Built Image Digest
         run: echo "The image digest is ${{ steps.build_image.outputs.metadata }}"
