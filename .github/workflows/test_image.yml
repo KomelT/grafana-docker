@@ -93,6 +93,9 @@ jobs:
           build-args: |
             "GRAFANA_VERSION=${{ inputs.TAG }}"
           no-cache: true
+          load: true
+      - name: Echo Built Image Digest
+        run: echo "The image digest is ${{ steps.build_image.outputs.digest }}"
 
   if_local_image_newer:
     name: Test if local Image is newer
